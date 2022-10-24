@@ -4,5 +4,13 @@
   "main": "main.js",
   "repository": "https://github.com/westshae/social-optim-scripts",
   "author": "westshae",
-  "private": true
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "puppeteer": "^19.1.0"
+  },
+  "scripts": {
+    "start": "node main.js"
+  }
 }
