@@ -1,10 +1,9 @@
 import puppeteer from 'puppeteer';
 
-const count = 0;
+let count = 0;
 
 async function getVideoIds(channelUrl){
-  //const browser = await puppeteer.launch();
-  const browser = await puppeteer.launch({headless:false});
+  const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
   await page.setRequestInterception(true);
@@ -19,39 +18,21 @@ async function getVideoIds(channelUrl){
     }
   });
 
-  page.on('console', err => console.log('pageerror: '+err));
-
-
   await page.goto(channelUrl);
   await page.waitForSelector('.ytd-grid-renderer');
-  //class for video link yt-simple-endpoint
+  await autoScroll(page);
 
-  var timer = setInterval(() => {
-    autoScroll(page);
-    console.log('how many times');
-  }, 100);
+  let links = await getAllLinks(page);
 
-  
+  browser.close();
 
-  // const videoEndpoints = '.yt-simple-endpoint';
-  // await page.waitForSelector(videoEndpoints);
-
-  // const links = await page.evaluate(videoEndpoints => {
-  //   return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
-  //     if(anchor.href.includes('/watch?v='))
-  //       return anchor.href;
-  //   });
-  // }, videoEndpoints);
-
-  // const videoIds = [];
-  
-  // links.forEach((value, index) => {
-  //   if(value != null)
-  //     videoIds.push(value);
-  // });
-
-  // console.log(videoIds);
+  return links;
 }
+
+function onlyUnique(value, index, self) {
+  return self.indexOf(value) === index;
+}
+
 
 async function getAllLinks(page){
   const videoEndpoints = '.yt-simple-endpoint';
@@ -64,78 +45,44 @@ async function getAllLinks(page){
     });
   }, videoEndpoints);
 
-  const videoIds = [];
+  let videoIds = [];
   
   links.forEach((value, index) => {
     if(value != null)
       videoIds.push(value);
   });
 
+  videoIds = videoIds.filter(onlyUnique);
+
   return videoIds;
 }
 
 
 async function autoScroll(page){
-  console.log("how many times")
-  var continueScript = true;
   await page.evaluate(async () => {
-      // var links = await getAllLinks();
-      // count = links.length;
-      console.log(count);
+    let prevScrollY = 0;
+    let scrollCount = 0;
 
-      await new Promise((resolve) => {
-          var totalHeight = 0;
-          var distance = 5000;
-          var timer = setInterval(() => {
-            console.log('more');
-              var scrollHeight = document.body.scrollHeight;
-              // window.querySelector('.circle').scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'end' });
-              window.scrollBy(0, distance);
-              totalHeight += distance;
+    await new Promise((resolve) => {
+      var timer = setInterval(() => {
+          window.scrollBy(0, 2500);
 
-              
-              if(true){
-                  clearInterval(timer);
-                  resolve();
-              }
-          }, 100);
-      });
+          if(scrollCount == 20){
+            clearInterval(timer);
+          } else if(window.scrollY == prevScrollY){
+            scrollCount++;
+          } else {
+            scrollCount = 0;
+          }
+
+          prevScrollY = window.scrollY;
+          if(scrollCount == 20){
+            clearInterval(timer);
+            resolve();
+          }
+      }, 100);
+    });
   });
 }
 
 export default getVideoIds;
-
-// (async () => {
-//   const browser = await puppeteer.launch({headless: false});
-//   const page = await browser.newPage();
-
-//   await page.goto('https://developers.google.com/web/');
-
-//   // Type into search box.
-//   await page.type('.devsite-search-field', 'Headless Chrome');
-
-//   // Wait for suggest overlay to appear and click "show all results".
-//   const allResultsSelector = '.devsite-suggest-all-results';
-//   await page.waitForSelector(allResultsSelector);
-//   await page.click(allResultsSelector);
-
-//   // Wait for the results page to load and display the results.
-//   const resultsSelector = '.gsc-results .gs-title';
-//   await page.waitForSelector(resultsSelector);
-
-//   // Extract the results from the page.
-//   const links = await page.evaluate(resultsSelector => {
-//     return [...document.querySelectorAll(resultsSelector)].map(anchor => {
-//       const title = anchor.textContent.split('|')[0].trim();
-//       return `${title} - ${anchor.href}`;
-//     });
-//   }, resultsSelector);
-
-//   // Print all the files.
-//   // console.log(links.join('\n'));
-//   for(var link of links){
-//     console.log("Ha" + link);
-//   }
-
-//   await browser.close();
-// })();
