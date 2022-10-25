@@ -20,6 +20,7 @@ async function getVideoIds(channelUrl){
 
   await page.goto(channelUrl);
   await page.waitForSelector('.ytd-grid-renderer');
+
   await autoScroll(page);
 
   let links = await getAllLinks(page);
@@ -40,14 +41,21 @@ async function getAllLinks(page){
 
   const links = await page.evaluate(videoEndpoints => {
     return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
-      if(anchor.href.includes('/watch?v='))
-        return anchor.href;
+      if(anchor != null && anchor.href.includes('/watch?v=') && anchor.getAttribute('aria-label') != null){
+        let split = anchor.getAttribute('aria-label').split(" ");
+        let link = anchor.href;
+        let title = anchor.getAttribute('title');
+        let views = split[split.findIndex(section => section === 'views') - 1];
+        let id = link.split("/watch?v=")[1];
+        
+        return {id:id, link:link, views:views, title:title};
+      }
     });
   }, videoEndpoints);
 
   let videoIds = [];
   
-  links.forEach((value, index) => {
+  links.forEach((value) => {
     if(value != null)
       videoIds.push(value);
   });
