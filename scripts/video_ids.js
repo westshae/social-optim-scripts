@@ -8,6 +8,7 @@ async function getVideoIds(channelUrl){
 
   await page.setRequestInterception(true);
 
+  //Prevents any unnecessary resources being downloaded, especially images & videos
   page.on('request', (request) => {
     if (['image', 'stylesheet', 'font'].indexOf(request.resourceType()) !== -1) {
         request.abort();
@@ -18,27 +19,30 @@ async function getVideoIds(channelUrl){
     }
   });
 
+  //Loads channel and waits for video grid content to load
   await page.goto(channelUrl);
   await page.waitForSelector('.ytd-grid-renderer');
 
+  //Scrolls from the top of the page to the bottom, waiting a short interval for it to load the new section of dynamic content
   await autoScroll(page);
 
-  let links = await getAllLinks(page);
+  //Returns all video data from the channel.
+  let links = await getAllVideoData(page);
 
   browser.close();
 
   return links;
 }
 
-function onlyUnique(value, index, self) {
-  return self.indexOf(value) === index;
-}
-
-
-async function getAllLinks(page){
+//For each video on the page, return its information
+async function getAllVideoData(page){
+  //Ensures videos exist on the page
   const videoEndpoints = '.yt-simple-endpoint';
   await page.waitForSelector(videoEndpoints);
 
+  //For each element that matches '.yt-simple-endpoint'
+  //If element is an anchor that has a link of a youtube video and an aria-label
+  //Save link, title, views & id into a object to return.
   const links = await page.evaluate(videoEndpoints => {
     return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
       if(anchor != null && anchor.href.includes('/watch?v=') && anchor.getAttribute('aria-label') != null){
@@ -53,30 +57,33 @@ async function getAllLinks(page){
     });
   }, videoEndpoints);
 
+  //Removes any null values from the .map function.
   let videoIds = [];
-  
   links.forEach((value) => {
     if(value != null)
       videoIds.push(value);
   });
 
-  videoIds = videoIds.filter(onlyUnique);
-  
   return videoIds;
 }
 
-
+//Scrolls from the top of the page to the bottom then stops
 async function autoScroll(page){
   await page.evaluate(async () => {
     let prevScrollY = 0;
     let scrollCount = 0;
 
     await new Promise((resolve) => {
+      //At a set interval, scroll down 2500px's
+      //If the scroll height is the same 20 intervals in a row, end loop.
+      //Else If the scroll height is the same as the last loop, increase the 'same count'
+      //Else, they aren't the same, reset the counter;
       var timer = setInterval(() => {
           window.scrollBy(0, 2500);
 
           if(scrollCount == 20){
             clearInterval(timer);
+            resolve();
           } else if(window.scrollY == prevScrollY){
             scrollCount++;
           } else {
@@ -84,10 +91,6 @@ async function autoScroll(page){
           }
 
           prevScrollY = window.scrollY;
-          if(scrollCount == 20){
-            clearInterval(timer);
-            resolve();
-          }
       }, 100);
     });
   });
