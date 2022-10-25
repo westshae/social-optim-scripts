@@ -45,7 +45,7 @@ async function getAllLinks(page){
         let split = anchor.getAttribute('aria-label').split(" ");
         let link = anchor.href;
         let title = anchor.getAttribute('title');
-        let views = split[split.findIndex(section => section === 'views') - 1];
+        let views = split[split.findIndex(section => section === 'views') - 1].replace(',', "");
         let id = link.split("/watch?v=")[1];
         
         return {id:id, link:link, views:views, title:title};
@@ -61,7 +61,7 @@ async function getAllLinks(page){
   });
 
   videoIds = videoIds.filter(onlyUnique);
-
+  
   return videoIds;
 }
 
