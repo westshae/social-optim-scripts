@@ -1,9 +1,8 @@
 import puppeteer from 'puppeteer';
 
-let count = 0;
-
 async function getVideoIds(channelUrl){
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({headless:true});
+
   const page = await browser.newPage();
 
   await page.setRequestInterception(true);
@@ -21,7 +20,7 @@ async function getVideoIds(channelUrl){
 
   //Loads channel and waits for video grid content to load
   await page.goto(channelUrl);
-  await page.waitForSelector('.ytd-grid-renderer');
+  await page.waitForSelector('#contents');
 
   //Scrolls from the top of the page to the bottom, waiting a short interval for it to load the new section of dynamic content
   await autoScroll(page);
