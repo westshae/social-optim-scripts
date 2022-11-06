@@ -7,6 +7,17 @@ async function getVideoIds(channelUrl){
 
   await page.setRequestInterception(true);
 
+  let totalBytes = 0
+
+    page.on('response', response => {
+        let headers = response.headers()
+        if ( typeof headers['content-length'] !== 'undefined' ){
+            var length = parseInt( headers['content-length'] )
+            totalBytes+= length
+        }
+    })
+
+
   //Prevents any unnecessary resources being downloaded, especially images & videos
   page.on('request', (request) => {
     if (['image', 'stylesheet', 'font'].indexOf(request.resourceType()) !== -1) {
@@ -29,6 +40,10 @@ async function getVideoIds(channelUrl){
   let links = await getAllVideoData(page);
 
   browser.close();
+
+  console.log("Scrape data::" + channelUrl);
+  console.log("Total Video Links: " + links.length);
+  console.log("Total Bandwidth: " + (totalBytes/1000000).toFixed(2) + " MB");
 
   return links;
 }
