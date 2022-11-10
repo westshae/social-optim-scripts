@@ -100,7 +100,7 @@ async function autoScroll(page){
       //Else If the scroll height is the same as the last loop, increase the 'same count'
       //Else, they aren't the same, reset the counter;
       var timer = setInterval(() => {
-          window.scrollBy(0, 2500);
+          window.scrollBy(0, 2474);
 
           if(scrollCount == 20){
             clearInterval(timer);
@@ -112,7 +112,7 @@ async function autoScroll(page){
           }
 
           prevScrollY = window.scrollY;
-      }, 100);
+      }, Math.random() * (123 - 74) + 74);
     });
   });
 }
