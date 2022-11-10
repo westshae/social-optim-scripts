@@ -1,7 +1,10 @@
 import puppeteer from 'puppeteer';
 
 async function getVideoIds(channelUrl){
-  const browser = await puppeteer.launch({headless:true});
+  const browser = await puppeteer.launch({
+    args: ['--proxy-server=socks5://127.0.0.1:9050'],
+    headless: false,
+  })
 
   const page = await browser.newPage();
 
