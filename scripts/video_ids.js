@@ -1,10 +1,14 @@
 import puppeteer from 'puppeteer';
+import startTor from './start_tor.js';
 
 async function getVideoIds(channelUrl){
-  const browser = await puppeteer.launch({
-    args: ['--proxy-server=socks5://127.0.0.1:9050'],
-    headless: false,
-  })
+  // startTor();
+  // const browser = await puppeteer.launch({
+  //   args: ['--proxy-server=socks5://127.0.0.1:9050'],
+  //   headless: false,
+  // })
+  
+  const browser = await puppeteer.launch({headless:false});
 
   const page = await browser.newPage();
 
