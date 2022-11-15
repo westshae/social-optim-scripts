@@ -2,8 +2,8 @@ import puppeteer from 'puppeteer';
 import { pageWithoutMedia, autoScroll } from './helper.js';
 
 async function getChannelsFromHomepage() {
-  const browser = await puppeteer.launch({headless:false});
-  // const browser = await puppeteer.launch();
+  // const browser = await puppeteer.launch({headless:false});
+  const browser = await puppeteer.launch();
 
   let page = await pageWithoutMedia(browser);
   page.goto("https://www.youtube.com/");
@@ -12,6 +12,8 @@ async function getChannelsFromHomepage() {
   await autoScroll(page, Math.random() * (361824 - 235955) + 235955);
 
   let links = await getAllChannelLinks(page);
+  console.log("ChannelLinkCount::" + links.length);
+
 
   browser.close();
 
@@ -45,7 +47,6 @@ async function getAllChannelLinks(page){
   let uniqueChannelLinks = channelLinks.filter(function(item, pos, self) {
     return self.indexOf(item) == pos;
 })
-
   return uniqueChannelLinks;
 }
 

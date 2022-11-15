@@ -9,8 +9,8 @@ async function getVideoIds(channelUrl){
   //   headless: false,
   // })
   
-  const browser = await puppeteer.launch({headless:false});
-  // const browser = await puppeteer.launch();
+  // const browser = await puppeteer.launch({headless:false});
+  const browser = await puppeteer.launch();
 
   let page = await pageWithoutMedia(browser);
 
@@ -27,7 +27,11 @@ async function getVideoIds(channelUrl){
   browser.close();
 
   console.log("Scrape data::" + channelUrl);
-  console.log("Total Video Links: " + links.length);
+  if(links){
+    console.log("Total Video Links: " + links.length);
+  } else {
+    console.log("Channel scrape failed::");
+  }
 
   return links;
 }
@@ -41,28 +45,31 @@ async function getAllVideoData(page){
   //For each element that matches '.yt-simple-endpoint'
   //If element is an anchor that has a link of a youtube video and an aria-label
   //Save link, title, views & id into a object to return.
-  const links = await page.evaluate(videoEndpoints => {
-    return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
-      if(anchor != null && anchor.href.includes('/watch?v=') && anchor.getAttribute('aria-label') != null){
-        let split = anchor.getAttribute('aria-label').split(" ");
-        let link = anchor.href;
-        let title = anchor.getAttribute('title');
-        let views = split[split.findIndex(section => section === 'views') - 1].replace(',', "");
-        let id = link.split("/watch?v=")[1];
-        
-        return {id:id, link:link, views:views, title:title};
-      }
+  try {
+    let links = await page.evaluate(videoEndpoints => {
+      return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
+        if(anchor != null && anchor.href.includes('/watch?v=') && anchor.getAttribute('aria-label') != null){
+          let split = anchor.getAttribute('aria-label').split(" ");
+          let link = anchor.href;
+          let title = anchor.getAttribute('title');
+          let views = split[split.findIndex(section => section === 'views') - 1].replace(',', "");
+          let id = link.split("/watch?v=")[1];
+          
+          return {id:id, link:link, views:views, title:title};
+        }
+      });
+    }, videoEndpoints);
+    //Removes any null values from the .map function.
+    let videoIds = [];
+    links.forEach((value) => {
+      if(value != null)
+        videoIds.push(value);
     });
-  }, videoEndpoints);
 
-  //Removes any null values from the .map function.
-  let videoIds = [];
-  links.forEach((value) => {
-    if(value != null)
-      videoIds.push(value);
-  });
-
-  return videoIds;
+    return videoIds;
+  } catch(e){
+    return null;
+  }
 }
 
 

@@ -6,6 +6,7 @@ async function getAllVideoData(links){
   for(let link of links){
     channels.push(await getVideoIds(link + "/videos"))
   }
+  console.log(channels);
 
   return channels;
 }

@@ -1,15 +1,14 @@
 import "dotenv/config";
 import getAllVideoData from "./scripts/getAllVideoIds.js";
 import getChannelsFromHomepage from "./scripts/getChannelsFromHomepage.js";
-import getVideoIds from "./scripts/getVideoIds.js";
-
-const YOUTUBE_CHANNEL_URL = process.env.YOUTUBE_CHANNEL_URL;
-
-// let videoIds = await getVideoIds(YOUTUBE_CHANNEL_URL);
-// console.log(videoIds);
-
-// getAllVideoData();
 
 const links = await getChannelsFromHomepage();
 const channels = await getAllVideoData(links);
-console.log(channels);
+console.log(channels.length);
+let count = 0;
+for(let video of channels){
+  if(video){
+    count += video.length;
+  }
+}
+console.log(count);
