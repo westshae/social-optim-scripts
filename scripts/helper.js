@@ -1,5 +1,3 @@
-
-
 async function pageWithoutMedia(browser){
   const page = await browser.newPage();
 
@@ -41,8 +39,9 @@ async function startTorClient(){
 }
 
 //Scrolls from the top of the page to the bottom then stops
-async function autoScroll(page){
-  await page.evaluate(async () => {
+//If height isn't equal to -1, scroll until pageY == height
+async function autoScroll(page, height = -1){
+  await page.evaluate(async (height) => {
     let prevScrollY = 0;
     let scrollCount = 0;
 
@@ -53,21 +52,30 @@ async function autoScroll(page){
       //Else, they aren't the same, reset the counter;
       var timer = setInterval(() => {
           window.scrollBy(0, Math.random() * (2744 - 2157) + 2157);
-
-          if(scrollCount == 20){
-            clearInterval(timer);
-            resolve();
-          } else if(window.scrollY == prevScrollY){
-            scrollCount++;
+          if(height == -1){
+            if(scrollCount == 20){
+              clearInterval(timer);
+              resolve();
+            } else if(window.scrollY == prevScrollY){
+              scrollCount++;
+            } else {
+              scrollCount = 0;
+            }
           } else {
-            scrollCount = 0;
+            if(window.scrollY > height || scrollCount == 20) {
+              clearInterval(timer);
+              resolve();
+            } else if(window.scrollY == prevScrollY){
+              scrollCount++;
+            } else {
+              scrollCount = 0;
+            }
           }
 
           prevScrollY = window.scrollY;
       }, Math.random() * (123 - 74) + 74);
     });
-  });
+  },height);
 }
-
 
 export {pageWithoutMedia, startTorClient, autoScroll}
