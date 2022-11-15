@@ -10,6 +10,7 @@ async function getVideoIds(channelUrl){
   // })
   
   const browser = await puppeteer.launch({headless:false});
+  // const browser = await puppeteer.launch();
 
   let page = await pageWithoutMedia(browser);
 
@@ -27,7 +28,6 @@ async function getVideoIds(channelUrl){
 
   console.log("Scrape data::" + channelUrl);
   console.log("Total Video Links: " + links.length);
-  console.log("Total Bandwidth: " + (totalBytes/1000000).toFixed(2) + " MB");
 
   return links;
 }

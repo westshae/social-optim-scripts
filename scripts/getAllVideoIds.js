@@ -1,7 +1,13 @@
 import getVideoIds from "./getVideoIds.js";
 
-function getAllVideoData(){
-  const fileName = process.env.IMPORT_FILE_NAME;
+async function getAllVideoData(links){
+  let channels = [];
+
+  for(let link of links){
+    channels.push(await getVideoIds(link + "/videos"))
+  }
+
+  return channels;
 }
 
 export default getAllVideoData;

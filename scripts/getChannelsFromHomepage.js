@@ -3,6 +3,8 @@ import { pageWithoutMedia, autoScroll } from './helper.js';
 
 async function getChannelsFromHomepage() {
   const browser = await puppeteer.launch({headless:false});
+  // const browser = await puppeteer.launch();
+
   let page = await pageWithoutMedia(browser);
   page.goto("https://www.youtube.com/");
 
@@ -10,7 +12,7 @@ async function getChannelsFromHomepage() {
   await autoScroll(page, Math.random() * (361824 - 235955) + 235955);
 
   let links = await getAllChannelLinks(page);
-  
+
   browser.close();
 
   return links;
@@ -28,19 +30,23 @@ async function getAllChannelLinks(page){
   const links = await page.evaluate(videoEndpoints => {
     return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
       if(anchor != null && anchor.href != null && anchor.href.includes('/channel/')){        
-        return {href:anchor.href};
+        return anchor.href;
       }
     });
   }, videoEndpoints);
 
   //Removes any null values from the .map function.
-  let videoIds = [];
+  let channelLinks = [];
   links.forEach((value) => {
     if(value != null)
-      videoIds.push(value);
+    channelLinks.push(value);
   });
 
-  return videoIds;
+  let uniqueChannelLinks = channelLinks.filter(function(item, pos, self) {
+    return self.indexOf(item) == pos;
+})
+
+  return uniqueChannelLinks;
 }
 
 export default getChannelsFromHomepage;

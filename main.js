@@ -10,4 +10,6 @@ const YOUTUBE_CHANNEL_URL = process.env.YOUTUBE_CHANNEL_URL;
 
 // getAllVideoData();
 
-await getChannelsFromHomepage();
+const links = await getChannelsFromHomepage();
+const channels = await getAllVideoData(links);
+console.log(channels);
