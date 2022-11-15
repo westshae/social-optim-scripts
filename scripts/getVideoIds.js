@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
-import startTor from './start_tor.js';
 
 async function getVideoIds(channelUrl){
+  // Tor to prevent ip banning if required
   // startTor();
   // const browser = await puppeteer.launch({
   //   args: ['--proxy-server=socks5://127.0.0.1:9050'],
