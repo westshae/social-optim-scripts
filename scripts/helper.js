@@ -48,7 +48,6 @@ async function autoScroll(page, height = -1){
 
           window.scrollBy(0, Math.random() * (2744 - 2157) + 2157);
 
-          
           if(height == -1){
             if(scrollCount == 20){
               clearInterval(timer);
@@ -77,4 +76,18 @@ async function autoScroll(page, height = -1){
   },height);
 }
 
-export {pageWithoutMedia, startTorClient, autoScroll}
+function convertChannelLinksToSingleList(listOfChannels){
+  let toReturn = [];
+  for(let channel of listOfChannels){
+    if(channel != null){
+      for(let link of channel){
+        if(link != null){
+          toReturn.push(link);
+        }
+      }
+    }
+  }
+  return toReturn;
+}
+
+export {pageWithoutMedia, startTorClient, autoScroll, convertChannelLinksToSingleList}

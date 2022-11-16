@@ -1,14 +1,9 @@
 import "dotenv/config";
 import getAllVideoData from "./scripts/getAllVideoIds.js";
 import getChannelsFromHomepage from "./scripts/getChannelsFromHomepage.js";
+import { convertChannelLinksToSingleList } from "./scripts/helper.js";
 
-const links = await getChannelsFromHomepage();
-const channels = await getAllVideoData(links);
-console.log(channels.length);
-let count = 0;
-for(let video of channels){
-  if(video){
-    count += video.length;
-  }
-}
-console.log(count);
+const channelLinks = await getChannelsFromHomepage();
+const channelVideos = await getAllVideoData(channelLinks);
+const videoLinks = convertChannelLinksToSingleList(channelVideos);
+console.log(videoLinks.length);
