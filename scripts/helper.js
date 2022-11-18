@@ -1,3 +1,6 @@
+import {exec} from "child_process";
+import * as fs from "fs";
+
 async function pageWithoutMedia(browser){
   const page = await browser.newPage();
 
@@ -90,4 +93,8 @@ function convertChannelLinksToSingleList(listOfChannels){
   return toReturn;
 }
 
-export {pageWithoutMedia, startTorClient, autoScroll, convertChannelLinksToSingleList}
+function saveToJsonFile(json, fileName) {
+  fs.writeFile(fileName + '.json', json, 'utf8', callback);
+}
+
+export {pageWithoutMedia, startTorClient, autoScroll, convertChannelLinksToSingleList,saveToJsonFile}

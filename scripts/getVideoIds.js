@@ -10,7 +10,7 @@ async function getVideoIds(channelUrl){
   // })
   
   // const browser = await puppeteer.launch({headless:false});
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
 
   let page = await pageWithoutMedia(browser);
 
@@ -46,7 +46,7 @@ async function getAllVideoData(page){
   //If element is an anchor that has a link of a youtube video and an aria-label
   //Save link, title, views & id into a object to return.
   try {
-    let links = await page.evaluate(videoEndpoints => {
+    const links = await page.evaluate(videoEndpoints => {
       return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
         if(anchor != null && anchor.href.includes('/watch?v=') && anchor.getAttribute('aria-label') != null){
           let split = anchor.getAttribute('aria-label').split(" ");
@@ -59,6 +59,44 @@ async function getAllVideoData(page){
         }
       });
     }, videoEndpoints);
+
+//     const n = await page.$("#txt")
+// const t = await (await n.getProperty('textContent')).jsonValue()
+
+    // const subscribers = await ((await page.$("#subscriber-count")).getProperty('textContent')).jsonValue();
+    const subscribers = await (await (await page.$('#subscriber-count')).getProperty('innerHTML')).jsonValue();
+    console.log(subscribers);
+    const channelSelector = ".ytd-channel-name"
+    const channelName = await page.evaluate(channelSelector => {
+      return [...document.querySelectorAll(channelSelector)].map(anchor => {
+        return anchor;
+      });
+    }, channelSelector);
+
+    console.log(channelName);
+
+    // console.log(await page.$('.ytd-channel-name')).getProperty('innerHTML')
+
+    // console.log(await (await page.$('.ytd-channel-name')).getProperty('innerHTML'))
+
+    // const channelName = await (await (await page.$('.ytd-channel-name')).getProperty('innerHTML')).jsonValue().trim();
+    // console.log(channelName);
+
+    // const links = await page.evaluate(videoEndpoints => {
+    //   return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
+    //     if(anchor != null && anchor.href != null && anchor.href.includes('/channel/')){        
+    //       return anchor.href;
+    //     }
+    //   });
+    // }, videoEndpoints);
+
+    // let channelSubscribers = (await page.$('#subscriber-count')).getProperty('innerHTML');;
+    // // .replace(',', "");
+    // let channelName = (await page.$('.ytd-channel-name')).getProperty('innerHTML');;
+    // console.log(channelName);
+    // console.log(channelSubscribers);
+
+
     //Removes any null values from the .map function.
     let videoIds = [];
     links.forEach((value) => {
@@ -68,6 +106,7 @@ async function getAllVideoData(page){
 
     return videoIds;
   } catch(e){
+    console.log(e);
     return null;
   }
 }
