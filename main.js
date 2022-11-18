@@ -8,6 +8,5 @@ const channelLinks = await getChannelsFromHomepage();
 saveToJsonFile(channelLinks, "channelLinks")
 const channelVideos = await getAllVideoData(channelLinks);
 const videoLinks = convertChannelLinksToSingleList(channelVideos);
-console.log(videoLinks.length);
 
 // downloadIndividualImage("https://i.ytimg.com/vi/G7lZGc6g4ns/hq720.jpg");
