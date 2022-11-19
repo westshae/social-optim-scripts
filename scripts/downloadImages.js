@@ -1,11 +1,5 @@
-import { startTorClient } from "./helper.js";
 import * as child from 'child_process';
 import * as fs from "fs";
-
-
-
-
-// startTorClient()
 
 async function downloadImages (ids) {
   const torProcess = child.spawn('sudo', ['tor']);

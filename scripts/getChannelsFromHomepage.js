@@ -47,7 +47,7 @@ async function getAllChannelLinks(page){
   let uniqueChannelLinks = channelLinks.filter(function(item, pos, self) {
     return self.indexOf(item) == pos;
   });
-  saveToJsonFile(channelLinks, "channelLinks")
+  saveToJsonFile(channelLinks, "general/channelLinks")
 
   return uniqueChannelLinks;
 }

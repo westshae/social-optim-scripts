@@ -20,16 +20,6 @@ async function pageWithoutMedia(browser){
   return page;
 }
 
-//Starts a local tor client
-async function startTorClient(){
-  exec('sudo tor', (error, stdout, stderr) => {
-    if(!(error || stderr)){
-      console.error("Command 'sudo tor' failed, please install tor package.")
-    }
-    console.log("Tor launch successful")
-  });
-}
-
 //Scrolls from the top of the page to the bottom then stops
 //If height isn't equal to -1, scroll until pageY == height
 async function autoScroll(page, height = -1){
@@ -80,18 +70,19 @@ async function autoScroll(page, height = -1){
 }
 
 function convertChannelLinksToSingleList(listOfChannels){
-  let toReturn = [];
+  let videos = [];
   for(let channel of listOfChannels){
     if(channel != null){
-      console.log(channel);
       for(let link of channel.videoList){
         if(link != null){
-          toReturn.push(link);
+          videos.push(link);
         }
       }
     }
   }
-  return toReturn;
+  saveToJsonFile(videos, "general/allVideos");
+
+  return videos;
 }
 
 function saveToJsonFile(json, fileName) {
@@ -99,4 +90,4 @@ function saveToJsonFile(json, fileName) {
   fs.writeFile("./data/jsons/" + fileName, JSON.stringify(json), () => {});
 }
 
-export {pageWithoutMedia, startTorClient, autoScroll, convertChannelLinksToSingleList,saveToJsonFile}
+export {pageWithoutMedia, autoScroll, convertChannelLinksToSingleList,saveToJsonFile}

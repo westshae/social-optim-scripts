@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { pageWithoutMedia, autoScroll } from './helper.js';
+import { pageWithoutMedia, autoScroll, saveToJsonFile } from './helper.js';
 
 async function getVideoIds(channelUrl){
   const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
@@ -15,6 +15,7 @@ async function getVideoIds(channelUrl){
 
   //Returns all video data from the channel.
   let links = await getAllVideoData(page);
+
 
   browser.close();
 
@@ -82,13 +83,17 @@ async function getAllVideoData(page){
       formattedSubNumber /= 10;
     }
 
-    return {
+    const data = {
       subscribersDisplay: subscribers,
       subscribersValue: formattedSubNumber,
       channelName: channelName,
       videoList: videoIds,
       videoCount: videoIds.length
     }
+
+    saveToJsonFile(data,"channels/" + channelName.replace(/\s+/g, "") + 'Data');
+
+    return data;
   } catch(e){
     console.log(e);
     return null;
