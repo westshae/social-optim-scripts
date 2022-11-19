@@ -32,7 +32,7 @@ async function downloadImages (ids) {
 async function downloadIndividualImage (id) {
   const link = "https://i.ytimg.com/vi/" + id + "/hq720.jpg"
   const torify = await child.execFileSync('torify', ['curl', '-0',link]);
-  await fs.writeFile("./data/" + id + ".png", torify,  "binary",function(err) { });
+  await fs.writeFile("./data/images/" + id + ".png", torify,  "binary",function(err) { });
 }
 
 export {downloadImages, downloadIndividualImage};

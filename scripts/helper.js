@@ -96,7 +96,7 @@ function convertChannelLinksToSingleList(listOfChannels){
 
 function saveToJsonFile(json, fileName) {
   fileName += ".json"
-  fs.writeFile(fileName, JSON.stringify(json), () => {});
+  fs.writeFile("./data/jsons/" + fileName, JSON.stringify(json), () => {});
 }
 
 export {pageWithoutMedia, startTorClient, autoScroll, convertChannelLinksToSingleList,saveToJsonFile}

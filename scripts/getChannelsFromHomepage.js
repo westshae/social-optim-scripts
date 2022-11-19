@@ -1,5 +1,5 @@
 import puppeteer from 'puppeteer';
-import { pageWithoutMedia, autoScroll } from './helper.js';
+import { pageWithoutMedia, autoScroll, saveToJsonFile } from './helper.js';
 
 async function getChannelsFromHomepage() {
   // const browser = await puppeteer.launch({headless:false});
@@ -46,7 +46,9 @@ async function getAllChannelLinks(page){
 
   let uniqueChannelLinks = channelLinks.filter(function(item, pos, self) {
     return self.indexOf(item) == pos;
-})
+  });
+  saveToJsonFile(channelLinks, "channelLinks")
+
   return uniqueChannelLinks;
 }
 
