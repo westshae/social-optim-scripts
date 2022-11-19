@@ -60,42 +60,9 @@ async function getAllVideoData(page){
       });
     }, videoEndpoints);
 
-//     const n = await page.$("#txt")
-// const t = await (await n.getProperty('textContent')).jsonValue()
-
-    // const subscribers = await ((await page.$("#subscriber-count")).getProperty('textContent')).jsonValue();
-    const subscribers = await (await (await page.$('#subscriber-count')).getProperty('innerHTML')).jsonValue();
-    console.log(subscribers);
-    const channelSelector = ".ytd-channel-name"
-    const channelName = await page.evaluate(channelSelector => {
-      return [...document.querySelectorAll(channelSelector)].map(anchor => {
-        return anchor;
-      });
-    }, channelSelector);
-
-    console.log(channelName);
-
-    // console.log(await page.$('.ytd-channel-name')).getProperty('innerHTML')
-
-    // console.log(await (await page.$('.ytd-channel-name')).getProperty('innerHTML'))
-
-    // const channelName = await (await (await page.$('.ytd-channel-name')).getProperty('innerHTML')).jsonValue().trim();
-    // console.log(channelName);
-
-    // const links = await page.evaluate(videoEndpoints => {
-    //   return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
-    //     if(anchor != null && anchor.href != null && anchor.href.includes('/channel/')){        
-    //       return anchor.href;
-    //     }
-    //   });
-    // }, videoEndpoints);
-
-    // let channelSubscribers = (await page.$('#subscriber-count')).getProperty('innerHTML');;
-    // // .replace(',', "");
-    // let channelName = (await page.$('.ytd-channel-name')).getProperty('innerHTML');;
-    // console.log(channelName);
-    // console.log(channelSubscribers);
-
+    //Finds the element, gets the textContent property.
+    const subscribers = await (await (await page.$('#subscriber-count')).getProperty('textContent')).jsonValue();
+    const channelName = await (await (await (await page.$('#channel-name')).$('#text')).getProperty('textContent')).jsonValue();
 
     //Removes any null values from the .map function.
     let videoIds = [];
@@ -103,6 +70,32 @@ async function getAllVideoData(page){
       if(value != null)
         videoIds.push(value);
     });
+
+    let hasDecimalPoint = subscribers.includes('.');
+
+    let letter = subscribers.includes('M') ? 'M' : null;
+    if(letter == null)
+      letter = subscribers.includes('K') ? 'K' : ' ';
+
+    let formattedSubNumber = parseInt(subscribers.split(letter)[0].replace('.', ''));
+    switch(letter){
+      case 'M':
+        formattedSubNumber *= 1000000;
+        break;
+      case 'K':
+        formattedSubNumber *= 1000;
+        break;
+    }
+    if(hasDecimalPoint){
+      formattedSubNumber /= 10;
+    }
+
+    return {
+      subscribersDisplay: subscribers,
+      subscribersValue: formattedSubNumber,
+      channelName: channelName,
+      videoIds: videoIds
+    }
 
     return videoIds;
   } catch(e){
