@@ -2,14 +2,6 @@ import puppeteer from 'puppeteer';
 import { pageWithoutMedia, autoScroll } from './helper.js';
 
 async function getVideoIds(channelUrl){
-  // Tor to prevent ip banning if required
-  // startTor();
-  // const browser = await puppeteer.launch({
-  //   args: ['--proxy-server=socks5://127.0.0.1:9050'],
-  //   headless: false,
-  // })
-  
-  // const browser = await puppeteer.launch({headless:false});
   const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
 
   let page = await pageWithoutMedia(browser);
@@ -28,7 +20,7 @@ async function getVideoIds(channelUrl){
 
   console.log("Scrape data::" + channelUrl);
   if(links){
-    console.log("Total Video Links: " + links.length);
+    console.log("Total Video Links: " + links.videoCount);
   } else {
     console.log("Channel scrape failed::");
   }
@@ -94,10 +86,9 @@ async function getAllVideoData(page){
       subscribersDisplay: subscribers,
       subscribersValue: formattedSubNumber,
       channelName: channelName,
-      videoIds: videoIds
+      videoList: videoIds,
+      videoCount: videoIds.length
     }
-
-    return videoIds;
   } catch(e){
     console.log(e);
     return null;

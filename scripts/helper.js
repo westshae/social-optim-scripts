@@ -83,7 +83,8 @@ function convertChannelLinksToSingleList(listOfChannels){
   let toReturn = [];
   for(let channel of listOfChannels){
     if(channel != null){
-      for(let link of channel){
+      console.log(channel);
+      for(let link of channel.videoList){
         if(link != null){
           toReturn.push(link);
         }
