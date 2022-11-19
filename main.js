@@ -4,9 +4,9 @@ import getAllVideoData from "./scripts/getAllVideoIds.js";
 import getChannelsFromHomepage from "./scripts/getChannelsFromHomepage.js";
 import { convertChannelLinksToSingleList, saveToJsonFile } from "./scripts/helper.js";
 
-const channelLinks = await getChannelsFromHomepage();
-saveToJsonFile(channelLinks, "channelLinks")
-const channelVideos = await getAllVideoData(channelLinks);
-const videoLinks = convertChannelLinksToSingleList(channelVideos);
+// const channelLinks = await getChannelsFromHomepage();
+// saveToJsonFile(channelLinks, "channelLinks")
+// const channelVideos = await getAllVideoData(channelLinks);
+// const videoLinks = convertChannelLinksToSingleList(channelVideos);
 
-// downloadIndividualImage("https://i.ytimg.com/vi/G7lZGc6g4ns/hq720.jpg");
+// downloadIndividualImage("G7lZGc6g4ns");
