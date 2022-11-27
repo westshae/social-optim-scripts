@@ -2,8 +2,8 @@ import puppeteer from 'puppeteer';
 import { pageWithoutMedia, autoScroll, saveToJsonFile } from './helper.js';
 
 async function getChannelsFromHomepage() {
-  // const browser = await puppeteer.launch({headless:false});
-  const browser = await puppeteer.launch();
+  // const browser = await puppeteer.launch({headless:false}, {args: ['--disable-dev-shm-usage']});
+  const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
 
   let page = await pageWithoutMedia(browser);
   page.goto("https://www.youtube.com/");
@@ -31,7 +31,7 @@ async function getAllChannelLinks(page){
   //Save link, title, views & id into a object to return.
   const links = await page.evaluate(videoEndpoints => {
     return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
-      if(anchor != null && anchor.href != null && anchor.href.includes('/channel/')){        
+      if(anchor != null && anchor.href != null && anchor.href.includes("/@")){
         return anchor.href;
       }
     });
@@ -44,12 +44,13 @@ async function getAllChannelLinks(page){
     channelLinks.push(value);
   });
 
-  let uniqueChannelLinks = channelLinks.filter(function(item, pos, self) {
+  let temp = channelLinks.filter(function(item, pos, self) {
     return self.indexOf(item) == pos;
   });
-  saveToJsonFile(channelLinks, "general/channelLinks")
+  channelLinks = temp;
+  saveToJsonFile(channelLinks, "general/channelLinks");
 
-  return uniqueChannelLinks;
+  return channelLinks;
 }
 
 export default getChannelsFromHomepage;

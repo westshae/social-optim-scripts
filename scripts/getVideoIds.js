@@ -21,7 +21,7 @@ async function getVideoIds(channelUrl){
 
   console.log("Scrape data::" + channelUrl);
   if(links){
-    console.log("Total Video Links: " + links.videoCount);
+    console.log("Total Video Links: " + links.length);
   } else {
     console.log("Channel scrape failed::");
   }
@@ -31,6 +31,31 @@ async function getVideoIds(channelUrl){
 
 //For each video on the page, return its information
 async function getAllVideoData(page){
+
+  //Finds the element, gets the textContent property.
+  const subscribers = await (await (await page.$('#subscriber-count')).getProperty('textContent')).jsonValue();
+  const channelName = await (await (await (await page.$('#channel-name')).$('#text')).getProperty('textContent')).jsonValue();
+
+  let hasDecimalPoint = subscribers.includes('.');
+
+  let letter = subscribers.includes('M') ? 'M' : null;
+  if(letter == null)
+    letter = subscribers.includes('K') ? 'K' : ' ';
+
+  let formattedSubNumber = parseInt(subscribers.split(letter)[0].replace('.', ''));
+  switch(letter){
+    case 'M':
+      formattedSubNumber *= 1000000;
+      break;
+    case 'K':
+      formattedSubNumber *= 1000;
+      break;
+  }
+  if(hasDecimalPoint){
+    formattedSubNumber /= 10;
+  }
+
+  
   //Ensures videos exist on the page
   const videoEndpoints = '.yt-simple-endpoint';
   await page.waitForSelector(videoEndpoints);
@@ -39,23 +64,19 @@ async function getAllVideoData(page){
   //If element is an anchor that has a link of a youtube video and an aria-label
   //Save link, title, views & id into a object to return.
   try {
-    const links = await page.evaluate(videoEndpoints => {
+    const links = await page.evaluate((videoEndpoints, formattedSubNumber, channelName) => {
       return [...document.querySelectorAll(videoEndpoints)].map(anchor => {
         if(anchor != null && anchor.href.includes('/watch?v=') && anchor.getAttribute('aria-label') != null){
           let split = anchor.getAttribute('aria-label').split(" ");
-          let link = anchor.href;
           let title = anchor.getAttribute('title');
           let views = split[split.findIndex(section => section === 'views') - 1].replace(',', "");
-          let id = link.split("/watch?v=")[1];
+          let id = anchor.href.split("/watch?v=")[1];
           
-          return {id:id, link:link, views:views, title:title};
+          return {id:id, title:title, channelName:channelName, subscribers:formattedSubNumber, views:views};
         }
       });
-    }, videoEndpoints);
+    }, videoEndpoints, formattedSubNumber, channelName);
 
-    //Finds the element, gets the textContent property.
-    const subscribers = await (await (await page.$('#subscriber-count')).getProperty('textContent')).jsonValue();
-    const channelName = await (await (await (await page.$('#channel-name')).$('#text')).getProperty('textContent')).jsonValue();
 
     //Removes any null values from the .map function.
     let videoIds = [];
@@ -64,36 +85,14 @@ async function getAllVideoData(page){
         videoIds.push(value);
     });
 
-    let hasDecimalPoint = subscribers.includes('.');
+    //Adds video count of youtuber to each video
+    videoIds.forEach((value)=>{
+      value.channelVideoCount = videoIds.length;
+    });
 
-    let letter = subscribers.includes('M') ? 'M' : null;
-    if(letter == null)
-      letter = subscribers.includes('K') ? 'K' : ' ';
+    saveToJsonFile(videoIds,"channels/" + channelName.replace(/\s+/g, "") + 'Data');
 
-    let formattedSubNumber = parseInt(subscribers.split(letter)[0].replace('.', ''));
-    switch(letter){
-      case 'M':
-        formattedSubNumber *= 1000000;
-        break;
-      case 'K':
-        formattedSubNumber *= 1000;
-        break;
-    }
-    if(hasDecimalPoint){
-      formattedSubNumber /= 10;
-    }
-
-    const data = {
-      subscribersDisplay: subscribers,
-      subscribersValue: formattedSubNumber,
-      channelName: channelName,
-      videoList: videoIds,
-      videoCount: videoIds.length
-    }
-
-    saveToJsonFile(data,"channels/" + channelName.replace(/\s+/g, "") + 'Data');
-
-    return data;
+    return videoIds;
   } catch(e){
     console.log(e);
     return null;
