@@ -2,31 +2,33 @@ import puppeteer from 'puppeteer';
 import { pageWithoutMedia, autoScroll, saveToJsonFile } from './helper.js';
 
 async function getVideoIds(channelUrl){
-  const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
+  try{
+    const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
 
-  let page = await pageWithoutMedia(browser);
+    let page = await pageWithoutMedia(browser);
 
-  //Loads channel and waits for video grid content to load
-  await page.goto(channelUrl);
-  await page.waitForSelector('#contents');
+    //Loads channel and waits for video grid content to load
+    await page.goto(channelUrl);
+    await page.waitForSelector('#contents');
 
-  //Scrolls from the top of the page to the bottom, waiting a short interval for it to load the new section of dynamic content
-  await autoScroll(page);
+    //Scrolls from the top of the page to the bottom, waiting a short interval for it to load the new section of dynamic content
+    await autoScroll(page);
 
-  //Returns all video data from the channel.
-  let links = await getAllVideoData(page);
+    //Returns all video data from the channel.
+    let links = await getAllVideoData(page);
 
 
-  browser.close();
+    browser.close();
 
-  console.log("Scrape data::" + channelUrl);
-  if(links){
-    console.log("Total Video Links: " + links.length);
-  } else {
-    console.log("Channel scrape failed::");
-  }
+    console.log("Scrape data::" + channelUrl);
+    if(links){
+      console.log("Total Video Links: " + links.length);
+    } else {
+      console.log("Channel scrape failed::");
+    }
 
-  return links;
+    return links;
+  }catch(e){}
 }
 
 //For each video on the page, return its information
@@ -69,7 +71,7 @@ async function getAllVideoData(page){
         if(anchor != null && anchor.href.includes('/watch?v=') && anchor.getAttribute('aria-label') != null){
           let split = anchor.getAttribute('aria-label').split(" ");
           let title = anchor.getAttribute('title');
-          let views = split[split.findIndex(section => section === 'views') - 1].replace(',', "");
+          let views = split[split.findIndex(section => section === 'views') - 1].replace(/\D/g, '');
           let id = anchor.href.split("/watch?v=")[1];
           
           return {id:id, title:title, channelName:channelName, subscribers:formattedSubNumber, views:views};

@@ -2,22 +2,25 @@ import puppeteer from 'puppeteer';
 import { pageWithoutMedia, autoScroll, saveToJsonFile } from './helper.js';
 
 async function getChannelsFromHomepage() {
-  // const browser = await puppeteer.launch({headless:false}, {args: ['--disable-dev-shm-usage']});
-  const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
+  try{
+    // const browser = await puppeteer.launch({headless:false}, {args: ['--disable-dev-shm-usage']});
+    const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
 
-  let page = await pageWithoutMedia(browser);
-  page.goto("https://www.youtube.com/");
+    let page = await pageWithoutMedia(browser);
+    page.goto("https://www.youtube.com/");
 
-  await page.waitForSelector('#contents');
-  await autoScroll(page, Math.random() * (361824 - 235955) + 235955);
+    await page.waitForSelector('#contents');
+    await autoScroll(page, Math.random() * (361824 - 235955) + 235955);
 
-  let links = await getAllChannelLinks(page);
-  console.log("ChannelLinkCount::" + links.length);
+    let links = await getAllChannelLinks(page);
+    console.log("ChannelLinkCount::" + links.length);
 
 
-  browser.close();
+    browser.close();
 
-  return links;
+    return links;
+  }catch(e){}
+  
 }
 
 //For each video on the page, return its information
